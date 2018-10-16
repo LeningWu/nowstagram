@@ -3,7 +3,7 @@
 # !@Time     :2018/10/15  16:05
 # !@Author   :Lening Wu
 # !@File     .py
-# 把视图写在这里 页面
+# 视图
 
 from nowstagram import app
 
