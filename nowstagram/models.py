@@ -32,7 +32,7 @@ class Image(db.Model):  # 图片类
     url = db.Column(db.String(512))  # type:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_date = db.Column(db.DateTime)
-    comments = db.relationship('Comments')
+    comments = db.relationship('Comment')
 
     def __init__(self , url, user_id):
         self.url = url
@@ -40,7 +40,7 @@ class Image(db.Model):  # 图片类
         self.created_date = datetime.now()
 
     def __repr__(self):  # 表达图片
-        return '<Image %d %s>' % (self.id , self.url)
+        return '<Image %d %s>' % (self.id, self.url)
 
 
 class User(db.Model):   # 对用户数据模型进行定义  和数据库想关联
