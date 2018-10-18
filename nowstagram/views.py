@@ -6,8 +6,11 @@
 # 视图
 
 from nowstagram import app
+from nowstagram.models import Image
+from flask import render_template
 
 
 @app.route('/')
 def index():
-    return 'hello'
+    image = Image.query.order_by('id desc').limit(10).all()
+    return render_template('index.html', images=images)
