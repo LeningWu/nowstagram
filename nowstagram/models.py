@@ -61,7 +61,7 @@ class User(db.Model):   # 对用户数据模型进行定义  和数据库想关�
         return '<User %d %s>' % (self.id , self.username)
 
     @property
-    def is_authenticate(self):  # 只要是登陆过的都认为是激活的
+    def is_authenticated(self):  # 只要是登陆过的都认为是激活的
         return True
 
     @property
