@@ -1,7 +1,7 @@
 #!/usr/bin/env/python
 # !-*-coding:utf-8 -*-
 # !@Time     :2018/10/15  16:05
-# !@Author   :Lening Wu
+# !@Author   : Lening Wu
 # !@File     .py
 # 视图
 # import password
@@ -9,7 +9,7 @@
 from nowstagram import app
 from nowstagram.models import Image, User, db
 from flask import render_template, redirect, request, flash, get_flashed_messages
-import random, hashlib
+import random, hashlib, json
 from flask_login import login_user, logout_user, current_user, login_required
 
 
@@ -33,7 +33,23 @@ def profile(user_id):
     user = User.query.get(user_id)
     if user == None:
         return redirect('/')
-    return render_template('profile.html', user=user)
+    paginate = Image.query.filter_by(user_id=user_id).paginate(page=1, per_page=3, error_out=False)  # 对用户业进行分页，每页显示三张图片
+    return render_template('profile.html', user=user, images=paginate.items, has_next=paginate.has_next)
+
+
+# ajix请求，不刷新页面来进行页面更新，类似于不刷新页面的情况下的看更多图片
+@app.route('/profile/images/<int:user_id>/<int:page>/<int:per_page>/')
+def user_images(user_id, page, per_page):
+    paginate = Image.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
+
+    map = {'has_next':paginate.has_next}  # 不停的点击更多，图片加载完成以后更多的按钮要消失
+    images = []
+    for image in paginate.items:
+        imgvo = {'id':image.id, 'url':image.url, 'comment_count':len(image.comments)}
+        images.append(imgvo)
+
+    map['images'] = images
+    return json.dumps(map)
 
 
 @app.route('/regloginpage/')  # 注册页面
@@ -41,13 +57,39 @@ def regloginpage():
     msg = ''
     for m in get_flashed_messages(with_categories=False, category_filter=['reglogin']):
         msg = msg + m
-    return render_template('login.html', msg=msg)
+    return render_template('login.html', msg=msg, next=request.values.get('next'))  # 把next传进去用来登录后直接进入个人页面
 
 
 def redirect_with_msg(target, msg, category):  # target跳转的页面
     if msg != None:
         flash(msg, category=category)
     return redirect(target)
+
+
+@app.route('/login/',methods={'post', 'get'})  # 登录页面
+def login():
+    username = request.values.get('username').strip()
+    password = request.values.get('password').strip()
+
+    if username == '' or password == '':
+       return redirect_with_msg('/regloginpage/', u'用户名或密码不能为空', 'reglogin')
+
+    user = User.query.filter_by(username=username).first()  # 看登录的用户名存不存在
+    if user == None:
+        return redirect_with_msg('/regloginpage/', u'用户名不存在', 'reglogin')
+
+    m = hashlib.md5()
+    m.update((password+user.salt).encode("utf8"))
+    if (m.hexdigest() != user.password):
+        return redirect_with_msg('/regloginpage/', u'密码错误', 'reglogin')
+
+    login_user(user)  # 告诉框架用户已经登录
+
+    next = request.values.get('next')
+    if next != None and next.startswith('/'):
+        return redirect(next)
+
+    return redirect('/')
 
 
 @app.route('/reg/', methods={'post', 'get'})
@@ -76,7 +118,11 @@ def reg():
     db.session.add(user)
     db.session.commit()
 
-    logout_user(user)  # 自动登录，登录状态
+    login_user(user)  # 自动登录，登录状态
+
+    next = request.values.get('next')
+    if next != None and next.startswith('/'):
+        return redirect(next)
 
     return redirect('/')  # 返回首页
 
@@ -84,7 +130,7 @@ def reg():
 @app.route('/logout/')  # 登出
 def logout():
     logout_user()
-    return redirect('/')
+    return redirect('/')  # 退出登录回到首页
 
 
 
