@@ -12,8 +12,9 @@ from flask_login import LoginManager
 
 app = Flask(__name__)
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')   # 可以在html文件中使用jinja的break语句
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+#  app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+#  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config.from_pyfile('app.conf')
 app.secret_key = 'nowcoder'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)  # 登录初始化
