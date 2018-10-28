@@ -130,6 +130,19 @@ def logout():
     logout_user()
     return redirect('/')  # 退出登录回到首页
 
+'''
+@app.route('/upload', methods={"post"})
+def upload():
+    # print(request.files)
+    file = request.files['file']
+    # print(dir(file))
+    if file.filename.find('.') > 0:
+       file_ext = file.filename.rsplit('.', 1)[1].strip().lower()
+    if file_ext in app.config['ALLOWED_EXT']:
+        file_name = str(uuid.uuid1()).replace()
+
+    return redirect('profile/%d' %current_user.id)
+    '''
 
 
 
