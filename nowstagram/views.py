@@ -2,9 +2,7 @@
 # !-*-coding:utf-8 -*-
 # !@Time     :2018/10/15  16:05
 # !@Author   : Lening Wu
-# !@File     .py
-# 视图
-# import password
+# !@File     views.py
 
 from nowstagram import app
 from nowstagram.models import Image, User, db
