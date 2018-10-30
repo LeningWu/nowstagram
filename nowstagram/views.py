@@ -6,11 +6,15 @@
 import os
 import uuid
 
+import qiniu
+
 from nowstagram import app
 from nowstagram.models import Image, User, db
 from flask import render_template, redirect, request, flash, get_flashed_messages, send_from_directory
 import random, hashlib, json
 from flask_login import login_user, logout_user, current_user, login_required
+
+from nowstagram.qiniusdk import qiniu_upload_file
 
 
 @app.route('/')  # 首页
@@ -134,8 +138,8 @@ def logout():
 
 
 def save_to_local(file, file_name):  # 图片保存本地
-    # save_dir = app.config['UPLOAD_DIR']
-    save_dir = '/Users/wulening/Desktop/'
+    save_dir = app.config['UPLOAD_DIR']
+    # save_dir = '/Users/wulening/Desktop/'
     file.save(os.path.join(save_dir, file_name))
     return '/image/' + file_name
 
@@ -149,14 +153,15 @@ def view_image(image_name):
 @app.route('/upload/', methods={'POST'})  # 上传的入口必须用post请求 提交过来一张图片
 @login_required  # 加权限，必须要登录
 def upload():
-    # if current_user.is_authenticated():
     file = request.files['file']  # 保存上传文件
+    # if current_user.is_authenticated():
+
     if file.filename.find('.') > 0:  # 鉴定文件名是否符合要求
         file_ext = file.filename.rsplit('.', 1)[1].strip().lower()
     if file_ext in app.config['ALLOWED_EXT']:
         file_name = str(uuid.uuid1()).replace('-', '') + '.' + file_ext  # 随机值
-        url = save_to_local(file, file_name)
-
+        # url = save_to_local(file, file_name)
+        url = qiniu_upload_file(file, file_name)
         if url != None:
             db.session.add(Image(url, current_user.id))
             db.session.commit()
