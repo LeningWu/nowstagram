@@ -37,7 +37,7 @@ class Image(db.Model):  # 图片类
     created_date = db.Column(db.DateTime)
     comments = db.relationship('Comment')
 
-    def __init__(self, user_id: object) -> object:
+    def __init__(self, url, user_id):
         self.url = url
         self.user_id = user_id
         self.created_date = datetime.now()
