@@ -137,8 +137,8 @@ def logout():
 
 
 def save_to_local(file, file_name):  # 图片保存本地
-    #save_dir = app.config['UPLOAD_DIR']
-    save_dir = '/Users/wulening/'
+    save_dir = app.config['UPLOAD_DIR']
+    # save_dir = '/Users/wulening/'
     file.save(os.path.join(save_dir, file_name))
     return '/image/' + file_name
 
