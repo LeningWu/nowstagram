@@ -2,6 +2,7 @@
 # 脚本数据
 
 import random
+import unittest
 from flask_script import Manager
 from sqlalchemy import or_, and_
 from nowstagram import app, db
@@ -12,6 +13,12 @@ manager = Manager(app)
 
 def get_image_url():
     return 'http://images.nowcoder.com/head/' + str(random.randint(0, 100)) + 'm.png'
+
+
+@manager.command  # 跑测试用例
+def run_test():
+    tests = unittest.TestLoader().discover('./')
+    unittest.TextTestRunner().run(tests)
 
 
 @manager.command
